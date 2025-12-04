@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TinySparks: A-O Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            overflow: hidden; /* Strict no-scroll */
+            background-color: #F0F4F8;
+            touch-action: none; /* Prevent browser swipe navigation/bounce */
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .text-outline {
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* Image Grid Styles */
+        .image-card {
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .image-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="h-[100dvh] w-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col">
+
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-30">
+        <div class="absolute top-10 left-10 w-32 h-32 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-float"></div>
+        <div class="absolute top-10 right-10 w-40 h-40 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-float" style="animation-delay: 1s"></div>
+        <div class="absolute bottom-20 left-20 w-48 h-48 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-float" style="animation-delay: 2s"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <!-- Structure: Mobile = Flex Col, Desktop = Grid 12 cols / 2 rows (header + content) -->
+    <main class="relative z-10 w-full h-full max-w-7xl mx-auto p-2 md:p-6 lg:p-8 flex flex-col lg:grid lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-4">
+
+        <!-- Header (Fixed Height) -->
+        <header class="shrink-0 lg:col-span-12 flex justify-between items-center h-14 md:h-16 mb-2 lg:mb-0">
+            <div class="flex items-center gap-3 bg-white px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-sm cursor-pointer hover:bg-yellow-50 transition" onclick="toggleParentMode()">
+                <div class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-white font-bold">★</div>
+                <span class="text-gray-600 font-bold text-sm tracking-wide hidden md:inline">TinySparks</span>
+            </div>
+            
+            <div class="flex-1 mx-4 md:mx-6 bg-gray-200 h-3 rounded-full overflow-hidden max-w-md shadow-inner">
+                <div id="progressBar" class="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full transition-all duration-500 ease-out" style="width: 6.6%"></div>
+            </div>
+
+            <button onclick="toggleMute()" id="muteBtn" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:scale-110 transition">
+                <svg id="soundOnIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                <svg id="soundOffIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9l2 2m0 0l2-2m-2 2l-2 2m2-2l2 2" /></svg>
+            </button>
+        </header>
+
+        <!-- LEFT COLUMN: The BIG CHARACTER Card -->
+        <!-- Mobile: Takes ~40% height. Desktop: Takes full height of row 2 -->
+        <section class="basis-[40%] lg:basis-auto lg:h-full lg:col-span-5 flex flex-col justify-center pb-2 lg:pb-0 min-h-0">
+            <div class="relative w-full h-full bg-white rounded-[2rem] lg:rounded-[3rem] card-shadow p-4 md:p-10 flex flex-col items-center justify-center border-4 border-white transition-colors duration-500 overflow-hidden" id="cardContainer">
+                
+                <!-- Corner Word -->
+                <div class="absolute top-4 lg:top-8 left-0 right-0 text-center text-lg md:text-2xl font-bold opacity-40 select-none tracking-widest uppercase" id="cornerWord">Apple</div>
+
+                <!-- Main Content: Just the Letter -->
+                <div class="flex flex-col items-center justify-center flex-grow w-full cursor-pointer" onclick="playCurrentAudio()">
+                    <!-- Use vmin for responsive font sizing ensuring it fits container -->
+                    <h1 id="mainLetter" class="text-[30vmin] lg:text-[14rem] leading-none font-black text-center text-outline transition-transform duration-300 hover:scale-105 select-none w-full" style="font-family: 'Nunito', sans-serif;">
+                        A
+                    </h1>
+                </div>
+
+                <!-- Interactive Hint -->
+                <div class="absolute bottom-4 flex items-center gap-2 text-gray-400 animate-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.071 2.929a16 16 0 010 22.627M15.536 6.464a9 9 0 010 12.728M12 10v4" /></svg>
+                    <span class="text-xs md:text-base font-semibold uppercase tracking-widest">Tap to Hear</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Images & Sentence -->
+        <!-- Mobile: Flex grow (takes rest of space). Desktop: Full height -->
+        <section class="flex-1 lg:h-full lg:col-span-7 flex flex-col gap-2 lg:gap-6 min-h-0 overflow-hidden">
+            
+            <!-- Context Sentence (Compact) -->
+            <div class="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl p-3 lg:p-6 shadow-lg border border-white flex flex-col items-center text-center justify-center shrink-0 animate-fade-in">
+                <p id="contextSentence" class="text-xl md:text-3xl font-bold text-gray-700 leading-tight">
+                    "The <span class="text-red-500">Apple</span> is red and yummy!"
+                </p>
+            </div>
+
+            <!-- Art/Drawing Image Grid (2x2) -->
+            <!-- Flex-1 ensures it fills available vertical space, min-h-0 allows internal scrolling if absolutely necessary but prevents overflow -->
+            <div class="grid grid-cols-2 grid-rows-2 gap-2 lg:gap-4 flex-1 rounded-2xl lg:rounded-3xl overflow-hidden min-h-0" id="imageGrid">
+                <!-- Images injected by JS -->
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="grid grid-cols-2 gap-3 lg:gap-4 h-14 md:h-20 shrink-0 pb-1 lg:pb-0">
+                <button onclick="prevCard()" class="group bg-white rounded-2xl shadow-lg border-b-4 border-gray-200 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center hover:bg-gray-50 gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-8 md:w-8 text-gray-400 group-hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span class="text-gray-500 font-bold group-hover:text-indigo-500 text-base md:text-lg">Back</span>
+                </button>
+                <button onclick="nextCard()" class="group bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 border-b-4 border-indigo-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center hover:bg-indigo-500 gap-2">
+                    <span class="text-indigo-100 font-bold text-base md:text-lg">Next</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-8 md:w-8 text-white animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Hidden Parent Tip -->
+            <div id="parentTip" class="hidden bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-xl absolute top-20 right-4 z-50 shadow-xl max-w-xs">
+                <div>
+                    <h4 class="text-yellow-800 font-bold text-sm uppercase mb-1">Parent Tip</h4>
+                    <p id="tipText" class="text-yellow-700 text-sm leading-relaxed">...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- DATASET: A to O with Art Prompts ---
+        const cards = [
+            { 
+                letter: "A", 
+                word: "Apple", 
+                color: "text-red-500", 
+                bg: "bg-red-50", 
+                sentence: "The <span class='text-red-500 font-bold'>Apple</span> is red and yummy!", 
+                tip: "Ask: 'What color is the apple?'",
+                imagePrompts: ["cute red apple cartoon sticker", "apple tree simple drawing", "basket of apples illustration vector", "sliced apple cartoon art"]
+            },
+            { 
+                letter: "B", 
+                word: "Ball", 
+                color: "text-blue-500", 
+                bg: "bg-blue-50", 
+                sentence: "Kick the <span class='text-blue-500 font-bold'>Ball</span> high in the sky!", 
+                tip: "Pretend to throw and catch a ball.",
+                imagePrompts: ["colorful beach ball cartoon", "soccer ball vector illustration", "basketball bouncing drawing", "toy ball for kids art"]
+            },
+            { 
+                letter: "C", 
+                word: "Cat", 
+                color: "text-orange-500", 
+                bg: "bg-orange-50", 
+                sentence: "The <span class='text-orange-500 font-bold'>Cat</span> says Meow Meow.", 
+                tip: "Ask: 'Does a cat have fur or feathers?'",
+                imagePrompts: ["orange tabby cat cartoon", "cute kitten sleeping illustration", "cat playing with yarn vector", "happy cat face drawing"]
+            },
+            { 
+                letter: "D", 
+                word: "Dog", 
+                color: "text-amber-600", 
+                bg: "bg-amber-50", 
+                sentence: "My <span class='text-amber-600 font-bold'>Dog</span> loves to run and play.", 
+                tip: "Make barking sounds together!",
+                imagePrompts: ["cute puppy dog cartoon", "happy dog running illustration", "dog with bone vector art", "spotted dog drawing"]
+            },
+            { 
+                letter: "E", 
+                word: "Elephant", 
+                color: "text-gray-500", 
+                bg: "bg-gray-100", 
+                sentence: "The <span class='text-gray-500 font-bold'>Elephant</span> has a long nose.", 
+                tip: "Use your arm to pretend it is a trunk.",
+                imagePrompts: ["cute baby elephant cartoon", "elephant with water spray illustration", "blue elephant simple drawing", "circus elephant vector"]
+            },
+            { 
+                letter: "F", 
+                word: "Fish", 
+                color: "text-cyan-500", 
+                bg: "bg-cyan-50", 
+                sentence: "Look at the <span class='text-cyan-500 font-bold'>Fish</span> swim in the sea.", 
+                tip: "Make a 'blub blub' mouth face.",
+                imagePrompts: ["orange clownfish cartoon", "blue fish swimming vector", "cute goldfish in bowl illustration", "colorful ocean fish drawing"]
+            },
+            { 
+                letter: "G", 
+                word: "Giraffe", 
+                color: "text-yellow-600", 
+                bg: "bg-yellow-50", 
+                sentence: "The <span class='text-yellow-600 font-bold'>Giraffe</span> is very very tall.", 
+                tip: "Stretch your hands up high!",
+                imagePrompts: ["cute giraffe cartoon head", "giraffe eating leaves illustration", "tall giraffe standing vector", "baby giraffe simple art"]
+            },
+            { 
+                letter: "H", 
+                word: "House", 
+                color: "text-purple-500", 
+                bg: "bg-purple-50", 
+                sentence: "My <span class='text-purple-500 font-bold'>House</span> has a big door.", 
+                tip: "Point to things in your own house.",
+                imagePrompts: ["colorful cottage house cartoon", "house with red roof vector", "simple home drawing for kids", "cartoon house with garden"]
+            },
+            { 
+                letter: "I", 
+                word: "Ice Cream", 
+                color: "text-pink-400", 
+                bg: "bg-pink-50", 
+                sentence: "I love cold <span class='text-pink-400 font-bold'>Ice Cream</span>.", 
+                tip: "Pretend to lick an ice cream cone.",
+                imagePrompts: ["pink strawberry ice cream cone cartoon", "chocolate ice cream sundae illustration", "ice cream truck vector art", "triple scoop ice cream drawing"]
+            },
+            { 
+                letter: "J", 
+                word: "Jellyfish", 
+                color: "text-indigo-400", 
+                bg: "bg-indigo-50", 
+                sentence: "The <span class='text-indigo-400 font-bold'>Jellyfish</span> wiggles in water.", 
+                tip: "Wiggle your fingers like jellyfish tentacles.",
+                imagePrompts: ["cute purple jellyfish cartoon", "jellyfish swimming in ocean vector", "smiling jellyfish illustration", "pink jellyfish drawing"]
+            },
+            { 
+                letter: "K", 
+                word: "Kite", 
+                color: "text-green-500", 
+                bg: "bg-green-50", 
+                sentence: "Fly the <span class='text-green-500 font-bold'>Kite</span> on a windy day.", 
+                tip: "Blow air out of your mouth to make the 'wind'.",
+                imagePrompts: ["colorful diamond kite cartoon", "flying kite in sky illustration", "red kite vector art", "kids flying kite drawing"]
+            },
+            { 
+                letter: "L", 
+                word: "Lion", 
+                color: "text-orange-600", 
+                bg: "bg-orange-100", 
+                sentence: "The <span class='text-orange-600 font-bold'>Lion</span> is the king!", 
+                tip: "Show me your brave lion face! 'Roar!'",
+                imagePrompts: ["cute lion face cartoon", "lion sitting majestic vector", "happy lion illustration", "lion with big mane drawing"]
+            },
+            { 
+                letter: "M", 
+                word: "Moon", 
+                color: "text-slate-500", 
+                bg: "bg-slate-100", 
+                sentence: "The <span class='text-slate-500 font-bold'>Moon</span> comes out at night.", 
+                tip: "Is the moon awake when you are asleep?",
+                imagePrompts: ["cute crescent moon sleeping cartoon", "full moon and stars vector", "yellow moon face illustration", "moon night sky drawing"]
+            },
+            { 
+                letter: "N", 
+                word: "Nest", 
+                color: "text-amber-700", 
+                bg: "bg-amber-100", 
+                sentence: "Birds sleep in a <span class='text-amber-700 font-bold'>Nest</span>.", 
+                tip: "Cup your hands together to make a little nest.",
+                imagePrompts: ["bird nest with eggs cartoon", "nest on tree branch vector", "cute bird in nest illustration", "simple nest drawing"]
+            },
+            { 
+                letter: "O", 
+                word: "Owl", 
+                color: "text-teal-600", 
+                bg: "bg-teal-50", 
+                sentence: "The wise <span class='text-teal-600 font-bold'>Owl</span> has big eyes.", 
+                tip: "Make binoculars with your hands over your eyes.",
+                imagePrompts: ["cute owl on branch cartoon", "big eyes owl vector art", "brown owl reading book illustration", "simple owl drawing"]
+            }
+        ];
+
+        // --- STATE ---
+        let currentIndex = 0;
+        let isMuted = false;
+        
+        // --- DOM ELEMENTS ---
+        const cornerWord = document.getElementById('cornerWord');
+        const mainLetter = document.getElementById('mainLetter');
+        const contextSentence = document.getElementById('contextSentence');
+        const tipText = document.getElementById('tipText');
+        const cardContainer = document.getElementById('cardContainer');
+        const progressBar = document.getElementById('progressBar');
+        const imageGrid = document.getElementById('imageGrid');
+
+        // --- INIT ---
+        function init() {
+            renderCard(0);
+        }
+
+        // --- CORE FUNCTIONS ---
+        function renderCard(index) {
+            const data = cards[index];
+            
+            // Text Animations
+            mainLetter.classList.remove('animate-bounce');
+            mainLetter.style.opacity = '0';
+            setTimeout(() => {
+                 mainLetter.style.opacity = '1';
+                 mainLetter.classList.add('pop-in');
+            }, 50);
+
+            // Content Update
+            cornerWord.textContent = data.word; // Small word hint in corner
+            mainLetter.textContent = data.letter; // BIG LETTER
+            contextSentence.innerHTML = data.sentence;
+            tipText.textContent = data.tip;
+
+            // Styling Update
+            cardContainer.className = `relative w-full h-full rounded-[2rem] lg:rounded-[3rem] card-shadow p-4 md:p-10 flex flex-col items-center justify-center border-4 border-white transition-colors duration-500 overflow-hidden ${data.bg}`;
+            mainLetter.className = `text-[30vmin] lg:text-[14rem] leading-none font-black text-center text-outline transition-transform duration-300 hover:scale-105 select-none ${data.color}`;
+            
+            // Progress Bar
+            const percentage = ((index + 1) / cards.length) * 100;
+            progressBar.style.width = `${percentage}%`;
+
+            // Image Grid Update - Using Pollinations for Art/Cartoon style
+            imageGrid.innerHTML = data.imagePrompts.map((prompt, i) => {
+                // Encode prompt for URL
+                const safePrompt = encodeURIComponent(prompt + " for kids, clear, white background, high quality");
+                return `
+                <div class="image-card bg-white rounded-xl lg:rounded-2xl w-full h-full relative overflow-hidden group cursor-pointer border-2 border-transparent hover:border-indigo-200" onclick="speak('${data.word}')">
+                    <img src="https://image.pollinations.ai/prompt/${safePrompt}?width=400&height=400&nologo=true" 
+                         alt="${prompt}" 
+                         class="w-full h-full object-contain p-2 transition-transform duration-700 group-hover:scale-110"
+                         loading="lazy">
+                </div>
+            `}).join('');
+        }
+
+        function nextCard() {
+            if (currentIndex < cards.length - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0; // Loop back
+            }
+            renderCard(currentIndex);
+            speak(cards[currentIndex].letter + "... " + cards[currentIndex].word);
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderCard(currentIndex);
+            }
+        }
+
+        // --- AUDIO & INTERACTION ---
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.getElementById('soundOnIcon').classList.toggle('hidden');
+            document.getElementById('soundOffIcon').classList.toggle('hidden');
+        }
+
+        function speak(text) {
+            if(isMuted) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function playCurrentAudio() {
+            const data = cards[currentIndex];
+            mainLetter.classList.add('animate-bounce');
+            setTimeout(() => mainLetter.classList.remove('animate-bounce'), 1000);
+            speak(`${data.letter}... is for ${data.word}`);
+        }
+
+        function toggleParentMode() {
+            const tip = document.getElementById('parentTip');
+            tip.classList.toggle('hidden');
+        }
+
+        // --- KEYBOARD NAV ---
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') nextCard();
+            if(e.key === 'ArrowLeft') prevCard();
+            if(e.key === ' ') playCurrentAudio();
+        });
+
+        // Initialize
+        init();
+
+    </script>
+</body>
+</html>

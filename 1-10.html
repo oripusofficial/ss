@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Number Safari 1-10</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            touch-action: manipulation; /* Prevent zooming on double tap */
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        /* Custom Bounce Animation for items */
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .pop-item {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 4px solid #4F46E5;
+            cursor: pointer;
+            margin-top: -14px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 12px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 25px;
+        }
+
+        /* Float animation for background elements */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Grid layout adjustments for different item counts */
+        .grid-layout-1 { grid-template-columns: 1fr; }
+        .grid-layout-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-layout-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-layout-4 { grid-template-columns: repeat(2, 1fr); }
+        .grid-layout-5 { grid-template-columns: repeat(3, 1fr); }
+        .grid-layout-6 { grid-template-columns: repeat(3, 1fr); }
+        .grid-layout-7 { grid-template-columns: repeat(3, 1fr); }
+        .grid-layout-8 { grid-template-columns: repeat(4, 1fr); }
+        .grid-layout-9 { grid-template-columns: repeat(3, 1fr); }
+        .grid-layout-10 { grid-template-columns: repeat(5, 1fr); }
+
+    </style>
+</head>
+<body class="bg-blue-400 h-screen w-screen flex flex-col items-center justify-center transition-colors duration-700 ease-in-out selection:bg-none select-none">
+
+    <!-- Decorative Background Shapes -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-10 left-10 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl floating"></div>
+        <div class="absolute bottom-20 right-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl floating" style="animation-delay: 1s;"></div>
+    </div>
+
+    <!-- Main Card -->
+    <!-- Increased max-width for desktop (lg:max-w-5xl) to accommodate side-by-side layout -->
+    <main class="z-10 bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl rounded-3xl w-11/12 max-w-md lg:max-w-5xl p-6 flex flex-col items-center relative h-[85vh] lg:h-[80vh] justify-between transition-all duration-300">
+        
+        <!-- Header -->
+        <header class="flex justify-between w-full items-center mb-4 lg:mb-0 shrink-0">
+            <button onclick="speakCurrent()" class="bg-white text-yellow-500 hover:text-yellow-600 rounded-full p-3 shadow-lg transition transform hover:scale-110 active:scale-95" aria-label="Listen">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+            </button>
+            <h1 class="text-3xl font-bold text-white drop-shadow-md">Learn 1-10</h1>
+            <div class="w-12"></div> <!-- Spacer for centering -->
+        </header>
+
+        <!-- Main Content Splitter: Vertical on Mobile, Horizontal on Desktop -->
+        <div class="flex flex-col lg:flex-row w-full flex-grow items-center justify-center lg:items-stretch lg:gap-12 overflow-hidden">
+
+            <!-- LEFT SIDE (Desktop): The Big Number -->
+            <div class="flex items-center justify-center w-full lg:w-5/12 lg:border-r lg:border-white/20 shrink-0">
+                <div id="numberDisplay" class="text-9xl lg:text-[14rem] font-bold text-white drop-shadow-lg mb-4 lg:mb-0 transition-transform duration-300 hover:scale-110 cursor-default">
+                    1
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE (Desktop): Visuals, Words, Controls -->
+            <div class="flex flex-col items-center justify-center w-full lg:w-7/12 h-full">
+                
+                <!-- Visuals & Words Area -->
+                <div class="flex-grow flex flex-col items-center justify-center w-full">
+                    <!-- The Object Container (Emojis) -->
+                    <div id="visualContainer" class="grid gap-2 mb-2 lg:mb-6 w-full place-items-center min-h-[160px] lg:min-h-[220px]">
+                        <!-- Emojis injected via JS -->
+                    </div>
+
+                    <!-- The Word -->
+                    <div id="wordDisplay" class="text-4xl lg:text-5xl font-bold text-white tracking-wider drop-shadow-md uppercase">
+                        ONE
+                    </div>
+                    <div id="objectNameDisplay" class="text-xl lg:text-2xl font-semibold text-white/90 mt-2 capitalize">
+                        Lion
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="w-full flex flex-col gap-6 mt-4 lg:mt-8 shrink-0">
+                    
+                    <!-- Slider -->
+                    <div class="w-full px-2">
+                        <input type="range" id="slider" min="1" max="10" value="1" step="1" oninput="updateFromSlider(this.value)">
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between items-center w-full">
+                        <button onclick="changeNumber(-1)" id="prevBtn" class="bg-white text-indigo-500 rounded-full p-4 shadow-lg shadow-black/20 transform transition hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <div class="flex gap-1">
+                            <!-- Dots indicator -->
+                            <div id="dotsContainer" class="flex gap-1.5"></div>
+                        </div>
+
+                        <button onclick="changeNumber(1)" id="nextBtn" class="bg-white text-indigo-500 rounded-full p-4 shadow-lg shadow-black/20 transform transition hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // Data for the app
+        const numberData = [
+            { num: 1, word: "One", object: "Sun", icon: "☀️", color: "bg-yellow-400", textCol: "text-yellow-600" },
+            { num: 2, word: "Two", object: "Eyes", icon: "👀", color: "bg-blue-400", textCol: "text-blue-600" },
+            { num: 3, word: "Three", object: "Trees", icon: "🌳", color: "bg-green-500", textCol: "text-green-700" },
+            { num: 4, word: "Four", object: "Fish", icon: "🐠", color: "bg-cyan-400", textCol: "text-cyan-600" },
+            { num: 5, word: "Five", object: "Stars", icon: "⭐", color: "bg-indigo-400", textCol: "text-indigo-600" },
+            { num: 6, word: "Six", object: "Balloons", icon: "🎈", color: "bg-red-400", textCol: "text-red-600" },
+            { num: 7, word: "Seven", object: "Apples", icon: "🍎", color: "bg-rose-400", textCol: "text-rose-600" },
+            { num: 8, word: "Eight", object: "Cars", icon: "🚗", color: "bg-orange-400", textCol: "text-orange-600" },
+            { num: 9, word: "Nine", object: "Bees", icon: "🐝", color: "bg-amber-400", textCol: "text-amber-600" },
+            { num: 10, word: "Ten", object: "Hearts", icon: "💖", color: "bg-pink-400", textCol: "text-pink-600" }
+        ];
+
+        let currentNum = 1;
+
+        // DOM Elements
+        const numberDisplay = document.getElementById('numberDisplay');
+        const visualContainer = document.getElementById('visualContainer');
+        const wordDisplay = document.getElementById('wordDisplay');
+        const objectNameDisplay = document.getElementById('objectNameDisplay');
+        const slider = document.getElementById('slider');
+        const body = document.body;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const dotsContainer = document.getElementById('dotsContainer');
+
+        // Initialize Speech Synthesis
+        const synth = window.speechSynthesis;
+
+        function init() {
+            createDots();
+            updateUI(1);
+        }
+
+        // Create navigation dots
+        function createDots() {
+            dotsContainer.innerHTML = '';
+            for(let i=1; i<=10; i++) {
+                const dot = document.createElement('div');
+                dot.className = `w-2 h-2 rounded-full bg-white/50 transition-all duration-300`;
+                dot.id = `dot-${i}`;
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateFromSlider(val) {
+            currentNum = parseInt(val);
+            updateUI(currentNum);
+        }
+
+        function changeNumber(delta) {
+            const newVal = currentNum + delta;
+            if (newVal >= 1 && newVal <= 10) {
+                currentNum = newVal;
+                slider.value = currentNum;
+                updateUI(currentNum);
+            }
+        }
+
+        function updateUI(num) {
+            const data = numberData[num - 1];
+
+            // 1. Update Background Color
+            body.className = `${data.color} h-screen w-screen flex flex-col items-center justify-center transition-colors duration-700 ease-in-out selection:bg-none select-none`;
+
+            // 2. Update Text
+            numberDisplay.textContent = data.num;
+            wordDisplay.textContent = data.word;
+            objectNameDisplay.textContent = data.object;
+            
+            // Re-trigger animation on number
+            numberDisplay.classList.remove('pop-item');
+            void numberDisplay.offsetWidth; // trigger reflow
+            numberDisplay.classList.add('pop-item');
+
+            // 3. Update Visuals (Icons)
+            visualContainer.innerHTML = '';
+            
+            // Set grid class based on count for nice layout
+            visualContainer.className = `grid gap-2 mb-6 w-full place-items-center min-h-[160px] lg:min-h-[220px] grid-layout-${num}`;
+
+            for (let i = 0; i < num; i++) {
+                const span = document.createElement('span');
+                span.textContent = data.icon;
+                // Scale emojis down slightly as count increases
+                const sizeClass = num > 6 ? 'text-4xl lg:text-5xl' : 'text-6xl lg:text-7xl';
+                span.className = `${sizeClass} pop-item cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-sm select-none`;
+                span.style.animationDelay = `${i * 0.05}s`; // Staggered animation
+                
+                // Clicking an emoji speaks the object name
+                span.onclick = () => speakText(data.object);
+                
+                visualContainer.appendChild(span);
+            }
+
+            // 4. Update Buttons state
+            prevBtn.disabled = num === 1;
+            nextBtn.disabled = num === 10;
+            prevBtn.className = `bg-white ${data.textCol} rounded-full p-4 shadow-lg shadow-black/20 transform transition hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`;
+            nextBtn.className = `bg-white ${data.textCol} rounded-full p-4 shadow-lg shadow-black/20 transform transition hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`;
+            
+            // 5. Update Dots
+            for(let i=1; i<=10; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if(i === num) {
+                    dot.classList.remove('bg-white/50', 'w-2', 'h-2');
+                    dot.classList.add('bg-white', 'w-3', 'h-3');
+                } else {
+                    dot.classList.add('bg-white/50', 'w-2', 'h-2');
+                    dot.classList.remove('bg-white', 'w-3', 'h-3');
+                }
+            }
+        }
+
+        function speakCurrent() {
+            const data = numberData[currentNum - 1];
+            speakText(`${data.word}. ${data.num} ${data.object}`);
+        }
+
+        function speakText(text) {
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9; 
+            utterance.pitch = 1.1; 
+            utterance.lang = 'en-US';
+            synth.speak(utterance);
+        }
+
+        window.onload = init;
+
+    </script>
+</body>
+</html>

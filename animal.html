@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>পশুপাখি পরিচিতি</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #e0f2fe 0%, #dcfce7 100%); overflow: hidden; }
+        .slide-enter { animation: fadeIn 0.45s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+        /* small tweak for very large emoji */
+        .animate-bounce-slow { animation: bounce 2.2s infinite; }
+        @keyframes bounce { 0%,100%{ transform: translateY(0);}50%{ transform: translateY(-8px);} }
+        /* ensure image covers area without distortion */
+        #animal-image { background-position: center; background-size: cover; }
+    </style>
+</head>
+<body class="w-screen h-screen">
+
+    <div class="relative w-full h-full flex flex-col md:flex-row" id="main-container">
+
+        <!-- Progress Bar -->
+        <div class="absolute top-0 left-0 w-full h-3 bg-gray-200 z-20">
+            <div id="progress-bar" class="h-full bg-green-600 transition-all duration-300" style="width: 10%"></div>
+        </div>
+
+        <!-- Left: Image -->
+        <div class="relative w-full h-[40%] md:w-1/2 md:h-full overflow-hidden bg-gray-100">
+            <!-- Use <img> for accessibility + onerror fallback logic -->
+            <img id="animal-image" src="" alt="Animal" class="w-full h-full object-cover transition-transform duration-1000 scale-105 hover:scale-110">
+            <div class="absolute top-4 right-4 md:top-6 md:right-6 bg-white/80 backdrop-blur-md text-green-800 text-sm md:text-2xl font-bold px-3 py-1 md:px-6 md:py-2 rounded-full shadow-lg z-20">
+                <span id="slide-number">1</span> / 10
+            </div>
+            <button onclick="prevSlide()" class="absolute top-1/2 left-2 md:left-4 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-2 md:p-6 rounded-full shadow-xl backdrop-blur transition-all active:scale-95 z-30 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-16 md:w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button onclick="nextSlide()" class="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 bg-white/70 hover:bg-white text-gray-900 p-2 md:p-6 rounded-full shadow-xl backdrop-blur transition-all active:scale-95 z-30 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-16 md:w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </div>
+
+        <!-- Right: Text -->
+        <div class="flex flex-col justify-center w-full h-[60%] md:w-1/2 md:h-full bg-white/90 backdrop-blur-xl p-4 md:p-16 relative">
+            <div class="slide-enter flex-grow flex flex-col justify-center" id="text-content">
+                <div class="flex justify-between items-start mb-4 md:mb-12">
+                    <div>
+                        <h2 id="animal-name" class="text-4xl md:text-8xl font-extrabold text-gray-900 leading-tight mb-1 md:mb-2">নাম</h2>
+                        <h3 id="animal-english-name" class="text-xl md:text-5xl font-bold text-green-600">Name</h3>
+                    </div>
+                    <span class="text-5xl md:text-9xl animate-bounce-slow" id="animal-emoji">🦁</span>
+                </div>
+
+                <div class="bg-blue-50/80 border-l-4 md:border-l-8 border-blue-500 p-4 md:p-8 rounded-r-xl md:rounded-r-2xl mb-3 md:mb-10 shadow-sm">
+                    <h3 class="text-sm md:text-2xl font-extrabold text-blue-700 uppercase tracking-wider mb-1 md:mb-3">মজার তথ্য</h3>
+                    <p id="animal-fact" class="text-gray-800 text-base md:text-4xl leading-snug md:leading-relaxed font-semibold">তথ্য এখানে আসবে...</p>
+                </div>
+
+                <div class="bg-green-50/80 border-l-4 md:border-l-8 border-green-600 p-4 md:p-8 rounded-r-xl md:rounded-r-2xl shadow-sm">
+                    <h3 class="text-sm md:text-2xl font-extrabold text-green-700 uppercase tracking-wider mb-1 md:mb-3">চেনার উপায়</h3>
+                    <p id="animal-id" class="text-gray-800 text-base md:text-4xl leading-snug md:leading-relaxed font-semibold">বিবরণ এখানে আসবে...</p>
+                </div>
+            </div>
+
+            <div class="absolute bottom-2 md:bottom-4 left-0 w-full text-center text-gray-500 text-xs md:text-xl font-medium opacity-70">
+                <span class="hidden md:inline">পরের পৃষ্ঠায় যেতে তীর বাটন চাপুন</span><span class="md:hidden">সোয়াইপ করুন</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const animals = [
+            { name: "সিংহ", englishName: "Lion", imageKeyword: "lion", emoji: "🦁", fact: "সিংহকে “জঙ্গলের রাজা” বলা হয়।", identify: "বড় সোনালি দেহ এবং মুখের চারদিকে ঘন কেশর।" },
+            { name: "হাতি", englishName: "Elephant", imageKeyword: "elephant", emoji: "🐘", fact: "হাতির শুঁড় একটি হাতের মতো কাজ করে — খাওয়া, ধরা, পানি তোলা সব কিছুতেই।", identify: "লম্বা শুঁড়, বড় কান, বিশাল দেহ।" },
+            { name: "জিরাফ", englishName: "Giraffe", imageKeyword: "giraffe,tall", emoji: "🦒", fact: "পৃথিবীর সবচেয়ে লম্বা প্রাণী।", identify: "খুব লম্বা গলা এবং বাদামি দাগ।" },
+            { name: "বাঘ", englishName: "Tiger", imageKeyword: "tiger", emoji: "🐅", fact: "বাঘ খুব শক্তিশালী সাঁতারু।", identify: "কমলা রঙের গা এবং কালো ডোরা দাগ।" },
+            { name: "জেব্রা", englishName: "Zebra", imageKeyword: "zebra", emoji: "🦓", fact: "প্রতিটি জেব্রার দাগের নকশা আলাদা হয়।", identify: "কালো-সাদা ডোরা দাগ।" },
+            { name: "বানর", englishName: "Monkey", imageKeyword: "monkey", emoji: "🐒", fact: "লম্বা লেজ দিয়ে বানর ভারসাম্য রক্ষা করে।", identify: "ছোট দেহ, চঞ্চল মুখ, লম্বা লেজ।" },
+            { name: "পান্ডা", englishName: "Panda", imageKeyword: "panda", emoji: "🐼", fact: "পান্ডারা দিনে ১০–১২ ঘণ্টা বাঁশ খেতে ব্যস্ত থাকে।", identify: "সাদা-কালো লোম আর গোল মুখ।" },
+            { name: "ক্যাঙ্গারু", englishName: "Kangaroo", imageKeyword: "kangaroo", emoji: "🦘", fact: "মা ক্যাঙ্গারু পেটের থলিতে বাচ্চাকে বহন করে।", identify: "লম্বা পা, শক্তিশালী লাফ, সামনের ছোট হাত।" },
+            
+        ];
+
+        // Elements
+        let currentIndex = 0;
+        const elImage = document.getElementById('animal-image');
+        const elName = document.getElementById('animal-name');
+        const elEngName = document.getElementById('animal-english-name');
+        const elEmoji = document.getElementById('animal-emoji');
+        const elFact = document.getElementById('animal-fact');
+        const elId = document.getElementById('animal-id');
+        const elSlideNum = document.getElementById('slide-number');
+        const elProgress = document.getElementById('progress-bar');
+        const elTextContent = document.getElementById('text-content');
+
+        // render
+        renderSlide(currentIndex);
+
+        function renderSlide(index) {
+            const animal = animals[index];
+
+            // Animation toggle
+            elTextContent.classList.remove('slide-enter');
+            void elTextContent.offsetWidth;
+            elTextContent.classList.add('slide-enter');
+
+            elName.innerText = animal.name;
+            elEngName.innerText = animal.englishName;
+            elEmoji.innerText = animal.emoji;
+            elFact.innerText = animal.fact;
+            elId.innerText = animal.identify;
+            elSlideNum.innerText = index + 1;
+
+            const percentage = ((index + 1) / animals.length) * 100;
+            elProgress.style.width = `${percentage}%`;
+
+            // Image: try multiple filename patterns with fallback to remote image
+            const paths = [
+                `${animal.englishName}.png`,                         // images/Lion.png
+                `${animal.englishName}.jpg`,                         // images/Lion.jpg
+                `${animal.englishName.toLowerCase()}.png`,           // images/lion.png
+                `${animal.englishName.toLowerCase()}.jpg`,           // images/lion.jpg
+                `${animal.englishName.replace(/\s+/g, '_')}.png`,    // images/Black_bear.png
+                `https://loremflickr.com/1280/800/${animal.imageKeyword}?lock=${index}` // remote fallback
+            ];
+            setImageWithFallback(elImage, paths);
+            elImage.alt = animal.name;
+        }
+
+        // Attempts sequential srcs; moves to next on error
+        function setImageWithFallback(imgEl, srcList) {
+            let i = 0;
+            imgEl.onerror = null; // clear previous
+            function tryNext() {
+                if (i >= srcList.length) {
+                    // final fallback: tiny transparent svg as placeholder
+                    imgEl.onerror = null;
+                    imgEl.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'600\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%23e2e8f0\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'24\' fill=\'%23737478\'%3EImage not available%3C/text%3E%3C/svg%3E';
+                    return;
+                }
+                const src = srcList[i++];
+                imgEl.onerror = tryNext;
+                imgEl.src = src;
+            }
+            tryNext();
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % animals.length;
+            renderSlide(currentIndex);
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + animals.length) % animals.length;
+            renderSlide(currentIndex);
+        }
+
+        // Touch / swipe
+        let touchstartX = 0, touchendX = 0;
+        const sliderContainer = document.getElementById('main-container');
+        function checkDirection() {
+            if (touchendX < touchstartX - 70) nextSlide();
+            if (touchendX > touchstartX + 70) prevSlide();
+        }
+        sliderContainer.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, { passive: true });
+        sliderContainer.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; checkDirection(); }, { passive: true });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Optional: preload images listed in images/ (uncomment if you want background preload)
+        // preloadImages(animals.map(a => `images/${a.englishName}.png`));
+        function preloadImages(list) {
+            list.forEach(src => { const i = new Image(); i.src = src; });
+        }
+    </script>
+</body>
+</html>
